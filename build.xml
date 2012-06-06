@@ -33,7 +33,10 @@
 
     <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
     <!--jar jarfile="${dist}/lib/vertere-${DSTAMP}.jar" basedir="${build}"/-->
-    <jar jarfile="${dist}/lib/vertere.jar" basedir="${build}"/>
+    <jar jarfile="${dist}/lib/vertere.jar">
+      <fileset dir="${build}"/>
+      <fileset dir="${src}" includes="**/*.java"/>
+    </jar>
   </target>
 
   <target name="clean" description="clean up" >

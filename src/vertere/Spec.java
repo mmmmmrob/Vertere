@@ -180,4 +180,46 @@ public class Spec {
             return null;
         }
     }
+
+    public RDFList getProcessingSteps(Resource identity) {
+        if (_model.contains(identity, Vertere.process)) {
+            Resource processResource = _model.getProperty(identity, Vertere.process).getResource();
+            RDFList processSteps = processResource.as(RDFList.class);
+            return processSteps;
+        } else {
+            return null;
+        }
+    }
+
+    public String getRegexMatch(Resource resource) {
+        if (_model.contains(resource, Vertere.regex_match)) {
+            return _model.getProperty(resource, Vertere.regex_match).getString();
+        } else {
+            return null;
+        }
+    }
+
+    public String getRegexOutput(Resource resource) {
+        if (_model.contains(resource, Vertere.regex_output)) {
+            return _model.getProperty(resource, Vertere.regex_output).getString();
+        } else {
+            return null;
+        }
+    }
+
+    int getSubstrStart(Resource resource) {
+        if (_model.contains(resource, Vertere.substring_start)) {
+            return _model.getProperty(resource, Vertere.substring_start).getInt();
+        } else {
+            return -1;
+        }
+    }
+
+    int getSubstrLength(Resource resource) {
+        if (_model.contains(resource, Vertere.substring_length)) {
+            return _model.getProperty(resource, Vertere.substring_length).getInt();
+        } else {
+            return -1;
+        }
+    }
 }

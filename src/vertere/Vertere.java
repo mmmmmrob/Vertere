@@ -7,6 +7,7 @@ package vertere;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hadoop.conf.Configuration;
@@ -82,8 +83,22 @@ public class Vertere extends Configured implements Tool {
     public static Property source_column_glue = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_column_glue");
     public static Property source_columns = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_columns");
     public static Property source_resource = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_resource");
+    public static Property substring_start = ResourceFactory.createProperty("http://purl.org/ontology/vertere#substring_start");
+    public static Property substring_length = ResourceFactory.createProperty("http://purl.org/ontology/vertere#substring_length");
     public static Property type = ResourceFactory.createProperty("http://purl.org/ontology/vertere#type");
     public static Resource Lookup = ResourceFactory.createResource("http://purl.org/ontology/vertere#Lookup");
     public static Resource Resource = ResourceFactory.createResource("http://purl.org/ontology/vertere#Resource");
     public static Resource Spec = ResourceFactory.createResource("http://purl.org/ontology/vertere#Spec");
+
+    public static class Processes {
+
+        public static Resource feet_to_metres = ResourceFactory.createResource("http://purl.org/ontology/vertere#feet_to_metres");
+        public static Resource flatten_utf8 = ResourceFactory.createResource("http://purl.org/ontology/vertere#flatten_utf8");
+        public static Resource normalise = ResourceFactory.createResource("http://purl.org/ontology/vertere#normalise");
+        public static Resource regex = ResourceFactory.createResource("http://purl.org/ontology/vertere#regex");
+        public static Resource round = ResourceFactory.createResource("http://purl.org/ontology/vertere#round");
+        public static Resource substr = ResourceFactory.createResource("http://purl.org/ontology/vertere#substr");
+        public static Resource title_case = ResourceFactory.createResource("http://purl.org/ontology/vertere#title_case");
+        public static Resource trim_quotes = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim_quotes");
+    }
 }

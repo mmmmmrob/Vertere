@@ -1,0 +1,5 @@
+Vertere is a Hadoop based Map/Reduce tool for converting structured data into RDF.
+
+I am currently porting Vertere from an early PHP impl to a Java one to work more closely with Hadoop.
+
+rob

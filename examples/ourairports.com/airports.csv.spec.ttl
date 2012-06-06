@@ -71,9 +71,9 @@
 	[
 		:property rdfs:label;
 		:source_column 3;
-		:process ( :regex :title_case );
-		:regex_match "_";
-		:regex_output " ";
+		:process (
+			[ a :regex; :regex_match "_"; :regex_output " "; ]
+			:title_case );
 	]
 .
 
@@ -116,18 +116,14 @@
 ; :identity [
 	:source_column 17;
 	:base_uri "";
-	:process ( :regex );
-	:regex_match " ";
-	:regex_output "";
+	:process ( [ a :regex; :regex_match " "; :regex_output ""; ] );
 	 ]
 .
 
 <#dbpedia_resource> a :Resource
 ; :identity [
 	:source_resource <#wikipedia_page>;
-	:process ( :regex );
-	:regex_match "http://[^/]*/wiki/(.*)";
-	:regex_output "http://dbpedia.org/resource/${1}";
+	:process ( [ a :regex; :regex_match "http://[^/]*/wiki/(.*)"; :regex_output "http://dbpedia.org/resource/$1"; ] );
 	]
 .
 
@@ -138,7 +134,7 @@
 	:base_uri "";
 	:process ( :regex );
 	:regex_match "^(.*)$";
-	:regex_output "http://www.ourairports.com/airports/${1}/";
+	:regex_output "http://www.ourairports.com/airports/$1/";
 	]
 .
 
