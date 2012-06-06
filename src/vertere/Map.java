@@ -5,6 +5,7 @@
 package vertere;
 
 import au.com.bytecode.opencsv.CSVParser;
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
@@ -52,8 +53,15 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
     }
 
     @Override
-    public void map(LongWritable k1, Text v1, OutputCollector<Text, Text> oc, Reporter rprtr) throws IOException {
-        String[] record = _parser.parseLine(v1.toString());
+    public void map(LongWritable k1, Text line, OutputCollector<Text, Text> oc, Reporter rprtr) throws IOException {
+        
+        String expectedHeader = _spec.getExpectedHeader();
+        if (line.toString().equals(expectedHeader)) {
+            return;
+        }
+
+        String[] record = _parser.parseLine(line.toString());
+
         HashMap<Resource, Resource> uris = createUris(record);
 
         //Iterate over the resources to build a model for each
@@ -62,9 +70,7 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         HashMap<Resource, Model> models = new HashMap<Resource, Model>();
         while (keyitrtr.hasNext()) {
             /*
-             * TODO Add default types
-             * Create Relationships
-             * Create Attributes
+             * TODO Add default types Create Relationships Create Attributes
              * oc.collect each subject
              */
             Resource resourceSpec = keyitrtr.next();
@@ -72,9 +78,10 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             Model model = ModelFactory.createDefaultModel();
             stateDefaultTypes(resourceSpec, subject, model);
             stateRelationships(resourceSpec, subject, uris, model);
+            stateAttributes(resourceSpec, subject, record, model);
             models.put(subject, model);
         }
-        
+
         //Iterate over subject to write each model out to ntriples
         Set<Resource> subjectSet = models.keySet();
         Iterator<Resource> subjectIterator = subjectSet.iterator();
@@ -86,9 +93,37 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             oc.collect(new Text(subject.getURI()), new Text(writer.toString()));
         }
     }
-    
+
+    private void stateAttributes(Resource resourceSpec, Resource subject, String[] record, Model model) {
+        NodeIterator attributes = _spec.getAttributes(resourceSpec);
+        if (null == attributes) {
+            return;
+        }
+        while (attributes.hasNext()) {
+            Resource attribute = attributes.next().asResource();
+            String sourceValue = getSourceValueFromSourceColumns(attribute, record);
+            Property property = _spec.getRelationshipProperty(attribute);
+            RDFDatatype datatype = _spec.getDatatype(attribute);
+            String language = _spec.getLanguage(attribute);
+            RDFNode lookupValue = _spec.lookup(attribute, sourceValue);
+            sourceValue = process(attribute, sourceValue);
+            if (null != lookupValue) {
+                model.add(subject, property, lookupValue);
+            } else if (null != language && language.length() != 0) {
+                model.add(subject, property, sourceValue, language);
+            } else if (null != datatype) {
+                model.add(subject, property, sourceValue, datatype);
+            } else {
+                model.add(subject, property, sourceValue);
+            }
+        }
+    }
+
     private void stateRelationships(Resource resourceSpec, Resource subject, HashMap<Resource, Resource> uris, Model model) {
         NodeIterator relationships = _spec.getRelationships(resourceSpec);
+        if (null == relationships) {
+            return;
+        }
         while (relationships.hasNext()) {
             Resource relationship = relationships.next().asResource();
             Property property = _spec.getRelationshipProperty(relationship);
@@ -263,10 +298,10 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         }
     }
 
-    private String getSourceValueFromSourceColumns(Resource identity, String[] record) {
+    private String getSourceValueFromSourceColumns(Resource resource, String[] record) {
         String sourceValue = "";
-        int[] sourceColumnNumbers = _spec.getSourceColumns(identity);
-        String sourceColumnGlue = _spec.getGlue(identity);
+        int[] sourceColumnNumbers = _spec.getSourceColumns(resource);
+        String sourceColumnGlue = _spec.getGlue(resource);
         for (int i = 0; i < sourceColumnNumbers.length; i++) {
             if (record[sourceColumnNumbers[i] - 1].length() > 0) {
                 if (i > 0) {

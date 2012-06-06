@@ -17,9 +17,13 @@ import org.apache.commons.lang.StringUtils;
 public class Processor {
 
     public static String feetToMetres(String feetString) {
-        double feet = Double.parseDouble(feetString);
-        DecimalFormat df = new DecimalFormat("#.#############");
-        return df.format(feet * 0.3048);
+        if (feetString.length() > 0) {
+            double feet = Double.parseDouble(feetString);
+            DecimalFormat df = new DecimalFormat("#.#############");
+            return df.format(feet * 0.3048);
+        } else {
+            return feetString;
+        }
     }
 
     static String flattenUtf8(String value) {

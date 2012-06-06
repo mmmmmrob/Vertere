@@ -4,6 +4,8 @@
  */
 package vertere;
 
+import com.hp.hpl.jena.datatypes.BaseDatatype;
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -87,12 +89,12 @@ public class Spec {
         return prefixes;
     }
 
-    public int[] getSourceColumns(Resource identity) {
-        if (_model.contains(identity, Vertere.source_column)) {
-            Statement sourceColumn = _model.getProperty(identity, Vertere.source_column);
-            return new int[]{sourceColumn.getInt()};
-        } else if (_model.contains(identity, Vertere.source_columns)) {
-            Statement sourceColumns = _model.getProperty(identity, Vertere.source_columns);
+    public int[] getSourceColumns(Resource resource) {
+        if (_model.contains(resource, Vertere.source_column)) {
+            Statement sourceColumn = _model.getProperty(resource, Vertere.source_column);
+            return new int[] { sourceColumn.getInt() };
+        } else if (_model.contains(resource, Vertere.source_columns)) {
+            Statement sourceColumns = _model.getProperty(resource, Vertere.source_columns);
             Resource listResource = sourceColumns.getResource();
             RDFList list = listResource.as(RDFList.class);
             List<RDFNode> javalist = list.asJavaList();
@@ -108,9 +110,9 @@ public class Spec {
         }
     }
 
-    public String getGlue(Resource identity) {
-        if (_model.contains(identity, Vertere.source_column_glue)) {
-            return _model.getProperty(identity, Vertere.source_column_glue).getString();
+    public String getGlue(Resource resource) {
+        if (_model.contains(resource, Vertere.source_column_glue)) {
+            return _model.getProperty(resource, Vertere.source_column_glue).getString();
         } else {
             return "";
         }
@@ -236,7 +238,7 @@ public class Spec {
     public Property getRelationshipProperty(Resource relationship) {
         if (_model.contains(relationship, Vertere.property)) {
             Resource resource = _model.getProperty(relationship, Vertere.property).getResource();
-            return _model.createProperty(resource.getURI());
+            return ResourceFactory.createProperty(resource.getURI());
         } else {
             return null;
         }
@@ -245,6 +247,37 @@ public class Spec {
     public Resource getRelationshipObjectFrom(Resource relationship) {
         if (_model.contains(relationship, Vertere.object_from)) {
             return _model.getProperty(relationship, Vertere.object_from).getResource();
+        } else {
+            return null;
+        }
+    }
+
+    public NodeIterator getAttributes(Resource resourceSpec) {
+        NodeIterator listObjectsOfProperty = _model.listObjectsOfProperty(resourceSpec, Vertere.attribute);
+        return listObjectsOfProperty;
+    }
+
+    public RDFDatatype getDatatype(Resource attribute) {
+        if (_model.contains(attribute, Vertere.datatype)) {
+            Resource resource = _model.getProperty(attribute, Vertere.datatype).getResource();
+            RDFDatatype datatype = new BaseDatatype(resource.getURI());
+            return datatype;
+        } else {
+            return null;
+        }
+    }
+
+    public String getLanguage(Resource attribute) {
+        if (_model.contains(attribute, Vertere.language)) {
+            return _model.getProperty(attribute, Vertere.language).getString();
+        } else {
+            return null;
+        }
+    }
+
+    public String getExpectedHeader() {
+        if (_model.contains(_specResource, Vertere.expected_header)) {
+            return _model.getProperty(_specResource, Vertere.expected_header).getString();
         } else {
             return null;
         }
