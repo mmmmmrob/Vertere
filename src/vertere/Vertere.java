@@ -4,6 +4,9 @@
  */
 package vertere;
 
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hadoop.conf.Configuration;
@@ -27,29 +30,60 @@ public class Vertere extends Configured implements Tool {
         conf.setJobName("vertere");
 
         conf.setOutputKeyClass(Text.class);
-        conf.setOutputValueClass(com.hp.hpl.jena.rdf.model.Model.class);
+        conf.setOutputValueClass(Text.class);
 
         conf.setMapperClass(Map.class);
         conf.setCombinerClass(Reduce.class);
         conf.setReducerClass(Reduce.class);
 
         conf.setInputFormat(TextInputFormat.class);
-        conf.setOutputFormat(GraphOutputFormat.class);
+        conf.setOutputFormat(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
-        conf.setStrings("vertere.jobspec", args[2]);
+        conf.setStrings("vertere.jobspec_filename", args[2]);
+        conf.setStrings("vertere.jobspec_uri", args[3]);
 
         JobClient.runJob(conf);
         return 0;
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
-            System.err.print("Usage:\nhadoop jar vertere.jar vertere.Verter /some/input.csv /some/output-folder /path/to/spec");
+        if (args.length != 4) {
+            System.err.print("Usage:\nhadoop jar vertere.jar vertere.Verter /some/input.csv /some/output-folder /path/to/spec http://uri/of/spec");
             System.exit(1);
         }
         int res = ToolRunner.run(new Configuration(), new Vertere(), args);
         System.exit(res);
     }
+    public static Property alternative_identity = ResourceFactory.createProperty("http://purl.org/ontology/vertere#alternative_identity");
+    public static Property attribute = ResourceFactory.createProperty("http://purl.org/ontology/vertere#attribute");
+    public static Property base_uri = ResourceFactory.createProperty("http://purl.org/ontology/vertere#base_uri");
+    public static Property container = ResourceFactory.createProperty("http://purl.org/ontology/vertere#container");
+    public static Property datatype = ResourceFactory.createProperty("http://purl.org/ontology/vertere#datatype");
+    public static Property expected_header = ResourceFactory.createProperty("http://purl.org/ontology/vertere#expected_header");
+    public static Property format = ResourceFactory.createProperty("http://purl.org/ontology/vertere#format");
+    public static Property header_rows = ResourceFactory.createProperty("http://purl.org/ontology/vertere#header_rows");
+    public static Property identity = ResourceFactory.createProperty("http://purl.org/ontology/vertere#identity");
+    public static Property language = ResourceFactory.createProperty("http://purl.org/ontology/vertere#language");
+    public static Property lookup = ResourceFactory.createProperty("http://purl.org/ontology/vertere#lookup");
+    public static Property lookup_entry = ResourceFactory.createProperty("http://purl.org/ontology/vertere#lookup_entry");
+    public static Property lookup_key = ResourceFactory.createProperty("http://purl.org/ontology/vertere#lookup_key");
+    public static Property lookup_value = ResourceFactory.createProperty("http://purl.org/ontology/vertere#lookup_value");
+    public static Property nest_under = ResourceFactory.createProperty("http://purl.org/ontology/vertere#nest_under");
+    public static Property object_from = ResourceFactory.createProperty("http://purl.org/ontology/vertere#object_from");
+    public static Property process = ResourceFactory.createProperty("http://purl.org/ontology/vertere#process");
+    public static Property property = ResourceFactory.createProperty("http://purl.org/ontology/vertere#property");
+    public static Property regex_match = ResourceFactory.createProperty("http://purl.org/ontology/vertere#regex_match");
+    public static Property regex_output = ResourceFactory.createProperty("http://purl.org/ontology/vertere#regex_output");
+    public static Property relationship = ResourceFactory.createProperty("http://purl.org/ontology/vertere#relationship");
+    public static Property resource = ResourceFactory.createProperty("http://purl.org/ontology/vertere#resource");
+    public static Property source_column = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_column");
+    public static Property source_column_glue = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_column_glue");
+    public static Property source_columns = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_columns");
+    public static Property source_resource = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_resource");
+    public static Property type = ResourceFactory.createProperty("http://purl.org/ontology/vertere#type");
+    public static Resource Lookup = ResourceFactory.createResource("http://purl.org/ontology/vertere#Lookup");
+    public static Resource Resource = ResourceFactory.createResource("http://purl.org/ontology/vertere#Resource");
+    public static Resource Spec = ResourceFactory.createResource("http://purl.org/ontology/vertere#Spec");
 }
