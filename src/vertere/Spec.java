@@ -42,10 +42,10 @@ public class Spec {
             log.log(Level.INFO, "Opening {0}", spec_filename);
             FSDataInputStream stream = fs.open(pt);
             _model = ModelFactory.createDefaultModel();
-            _model.setNsPrefixes(getPrefixes());
+//            _model.setNsPrefixes(getPrefixes());
             RDFReader reader = this._model.getReader("TURTLE");
             log.log(Level.INFO, "Reading {0}", spec_filename);
-            reader.read(this._model, stream, "http://flawed/");
+            reader.read(this._model, stream, "http://put.a.base.in.your.spec/");
             log.log(Level.INFO, "Successfully created Spec from {0}", spec_filename);
             _specResource = _model.getResource(spec_uri);
             if (!_model.containsResource(_specResource)) {

@@ -38,7 +38,7 @@ public class Vertere extends Configured implements Tool {
         conf.setReducerClass(Reduce.class);
 
         conf.setInputFormat(TextInputFormat.class);
-        conf.setOutputFormat(TextOutputFormat.class);
+        conf.setOutputFormat(GraphOutputFormat.class);
 
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
