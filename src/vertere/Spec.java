@@ -222,4 +222,31 @@ public class Spec {
             return -1;
         }
     }
+
+    public NodeIterator getSpecifiedTypes(Resource resourceSpec) {
+        NodeIterator listObjectsOfProperty = _model.listObjectsOfProperty(resourceSpec, Vertere.type);
+        return listObjectsOfProperty;
+    }
+
+    public NodeIterator getRelationships(Resource resourceSpec) {
+        NodeIterator listObjectsOfProperty = _model.listObjectsOfProperty(resourceSpec, Vertere.relationship);
+        return listObjectsOfProperty;
+    }
+
+    public Property getRelationshipProperty(Resource relationship) {
+        if (_model.contains(relationship, Vertere.property)) {
+            Resource resource = _model.getProperty(relationship, Vertere.property).getResource();
+            return _model.createProperty(resource.getURI());
+        } else {
+            return null;
+        }
+    }
+
+    public Resource getRelationshipObjectFrom(Resource relationship) {
+        if (_model.contains(relationship, Vertere.object_from)) {
+            return _model.getProperty(relationship, Vertere.object_from).getResource();
+        } else {
+            return null;
+        }
+    }
 }

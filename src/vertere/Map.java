@@ -6,12 +6,14 @@ package vertere;
 
 import au.com.bytecode.opencsv.CSVParser;
 import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,15 +56,57 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         String[] record = _parser.parseLine(v1.toString());
         HashMap<Resource, Resource> uris = createUris(record);
 
-
-
-
+        //Iterate over the resources to build a model for each
         Set<Resource> keySet = uris.keySet();
         Iterator<Resource> keyitrtr = keySet.iterator();
+        HashMap<Resource, Model> models = new HashMap<Resource, Model>();
         while (keyitrtr.hasNext()) {
-            Resource key = keyitrtr.next();
-            Resource value = uris.get(key);
-            oc.collect(new Text(key.getURI()), new Text(value.getURI()));
+            /*
+             * TODO Add default types
+             * Create Relationships
+             * Create Attributes
+             * oc.collect each subject
+             */
+            Resource resourceSpec = keyitrtr.next();
+            Resource subject = uris.get(resourceSpec);
+            Model model = ModelFactory.createDefaultModel();
+            stateDefaultTypes(resourceSpec, subject, model);
+            stateRelationships(resourceSpec, subject, uris, model);
+            models.put(subject, model);
+        }
+        
+        //Iterate over subject to write each model out to ntriples
+        Set<Resource> subjectSet = models.keySet();
+        Iterator<Resource> subjectIterator = subjectSet.iterator();
+        while (subjectIterator.hasNext()) {
+            Resource subject = subjectIterator.next();
+            Writer writer = new StringWriter();
+            Model subjectModel = models.get(subject);
+            subjectModel.write(writer, "N-TRIPLES");
+            oc.collect(new Text(subject.getURI()), new Text(writer.toString()));
+        }
+    }
+    
+    private void stateRelationships(Resource resourceSpec, Resource subject, HashMap<Resource, Resource> uris, Model model) {
+        NodeIterator relationships = _spec.getRelationships(resourceSpec);
+        while (relationships.hasNext()) {
+            Resource relationship = relationships.next().asResource();
+            Property property = _spec.getRelationshipProperty(relationship);
+            Resource objectFrom = _spec.getRelationshipObjectFrom(relationship);
+            if (null != objectFrom && null != property) {
+                Resource object = uris.get(objectFrom);
+                if (null != object) {
+                    model.add(subject, property, object);
+                }
+            }
+        }
+    }
+
+    private void stateDefaultTypes(Resource resourceSpec, Resource subject, Model model) {
+        NodeIterator specifiedTypes = _spec.getSpecifiedTypes(resourceSpec);
+        while (specifiedTypes.hasNext()) {
+            Resource type = specifiedTypes.next().asResource();
+            model.add(subject, RDF.type, type);
         }
     }
 
