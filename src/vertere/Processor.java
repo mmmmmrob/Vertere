@@ -8,7 +8,11 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.BaseNCodec;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 
 /**
  *
@@ -71,7 +75,8 @@ public class Processor {
     }
 
     static String titleCase(String value) {
-        return StringUtils.capitalize(value);
+        value = value.toLowerCase();
+        return WordUtils.capitalize(value);
     }
 
     static String trimQuotes(String newValue) {
@@ -79,5 +84,14 @@ public class Processor {
             newValue = newValue.replaceAll("^\"|\"$", "");
         }
         return newValue;
+    }
+
+    static String trim(String newValue) {
+        return newValue.trim();
+    }
+    
+    static String sha512(String value, Spec spec, Resource resource) {
+        String salt = spec.getSalt(resource);
+        return DigestUtils.sha512Hex(salt + value);
     }
 }

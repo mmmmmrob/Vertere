@@ -79,6 +79,7 @@ public class Vertere extends Configured implements Tool {
     public static Property regex_output = ResourceFactory.createProperty("http://purl.org/ontology/vertere#regex_output");
     public static Property relationship = ResourceFactory.createProperty("http://purl.org/ontology/vertere#relationship");
     public static Property resource = ResourceFactory.createProperty("http://purl.org/ontology/vertere#resource");
+    public static Property salt = ResourceFactory.createProperty("http://purl.org/ontology/vertere#salt");
     public static Property source_column = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_column");
     public static Property source_column_glue = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_column_glue");
     public static Property source_columns = ResourceFactory.createProperty("http://purl.org/ontology/vertere#source_columns");
@@ -97,8 +98,10 @@ public class Vertere extends Configured implements Tool {
         public static Resource normalise = ResourceFactory.createResource("http://purl.org/ontology/vertere#normalise");
         public static Resource regex = ResourceFactory.createResource("http://purl.org/ontology/vertere#regex");
         public static Resource round = ResourceFactory.createResource("http://purl.org/ontology/vertere#round");
+        public static Resource sha512 = ResourceFactory.createResource("http://purl.org/ontology/vertere#sha512");
         public static Resource substr = ResourceFactory.createResource("http://purl.org/ontology/vertere#substr");
         public static Resource title_case = ResourceFactory.createResource("http://purl.org/ontology/vertere#title_case");
         public static Resource trim_quotes = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim_quotes");
+        public static Resource trim = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim");
     }
 }

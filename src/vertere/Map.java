@@ -7,28 +7,19 @@ package vertere;
 import au.com.bytecode.opencsv.CSVParser;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
-import org.mockito.asm.tree.analysis.SourceValue;
 
 /**
  *
@@ -273,6 +264,12 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             if (processStep.equals(Vertere.Processes.round) || stepType.equals(Vertere.Processes.round)) {
                 newValue = Processor.round(newValue);
             }
+            if (processStep.equals(Vertere.Processes.sha512)) {
+                newValue = Processor.sha512(newValue, _spec, resource);
+            }
+            if (stepType.equals(Vertere.Processes.sha512)) {
+                newValue = Processor.sha512(newValue, _spec, processStep);
+            }
             if (processStep.equals(Vertere.Processes.substr) || stepType.equals(Vertere.Processes.substr)) {
                 newValue = Processor.substr(newValue, _spec, resource, processStep);
             }
@@ -281,6 +278,9 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             }
             if (processStep.equals(Vertere.Processes.trim_quotes) || stepType.equals(Vertere.Processes.trim_quotes)) {
                 newValue = Processor.trimQuotes(newValue);
+            }
+            if (processStep.equals(Vertere.Processes.trim) || stepType.equals(Vertere.Processes.trim)) {
+                newValue = Processor.trim(newValue);
             }
         }
         return newValue;

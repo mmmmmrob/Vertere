@@ -282,4 +282,12 @@ public class Spec {
             return null;
         }
     }
+
+    public String getSalt(Resource resource) {
+        if (_model.contains(resource, Vertere.salt)) {
+            return _model.getProperty(resource, Vertere.salt).getString();
+        } else {
+            return "";
+        }
+    }
 }
