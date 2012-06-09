@@ -13,9 +13,8 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -45,7 +44,7 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
 
     @Override
     public void map(LongWritable k1, Text line, OutputCollector<Text, Text> oc, Reporter rprtr) throws IOException {
-        
+
         String expectedHeader = _spec.getExpectedHeader();
         if (line.toString().equals(expectedHeader)) {
             return;
@@ -85,6 +84,44 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         }
     }
 
+    private boolean passesTests(Resource identity, String[] record) throws NoSuchElementException {
+        String resourceLogName = identity.isURIResource() ? identity.getURI() : identity.getId().getLabelString();
+//        _log.log(Level.WARNING, "Looking for test for {0}", resourceLogName);
+        NodeIterator tests = _spec.getOnlyIfs(identity);
+        while (tests.hasNext()) {
+//            _log.log(Level.WARNING, "I have some tests :)");
+            Resource test = tests.next().asResource();
+            Resource typeOfTest = OWL.Thing;
+            if (test.hasProperty(RDF.type)) {
+                typeOfTest = test.getProperty(RDF.type).getResource();
+                _log.log(Level.WARNING, "Test is a {0}", typeOfTest.getURI());
+            }
+            if (typeOfTest.equals(Vertere.Tests.distinct)) {
+                _log.log(Level.WARNING, "Testing distinct for {0}", resourceLogName);
+                int[] columns = _spec.getColumns(test);
+                Set values = new HashSet();
+                for (int i = 0; i < columns.length; i++) {
+                    values.add(record[columns[i] - 1]);
+                }
+                if (columns.length != values.size()) {
+                    _log.log(Level.WARNING, "Distinct test ruled out {0}", resourceLogName);
+                    return false;
+                }
+            }
+            if (typeOfTest.equals(Vertere.Tests.empty)) {
+                _log.log(Level.WARNING, "Testing empty for {0}", resourceLogName);
+                int[] columns = _spec.getColumns(test);
+                for (int i = 0; i < columns.length; i++) {
+                    if (record[columns[i] - 1].length() > 0) {
+                        _log.log(Level.SEVERE, "Empty ruled out for {0}", resourceLogName);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     private void stateAttributes(Resource resourceSpec, Resource subject, String[] record, Model model) {
         NodeIterator attributes = _spec.getAttributes(resourceSpec);
         if (null == attributes) {
@@ -92,6 +129,9 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         }
         while (attributes.hasNext()) {
             Resource attribute = attributes.next().asResource();
+            if (!passesTests(attribute, record)) {
+                continue;
+            }
             String sourceValue = getSourceValueFromSourceColumns(attribute, record);
             Property property = _spec.getRelationshipProperty(attribute);
             RDFDatatype datatype = _spec.getDatatype(attribute);
@@ -166,6 +206,10 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
 
     private void createUri(String[] record, HashMap<Resource, Resource> uris, Resource resource, Resource identity) {
         String sourceValue = getSourceValueFromSourceColumns(identity, record);
+        //TODO copy this over to attributes
+        if (!passesTests(identity, record)) {
+            return;
+        }
         Resource sourceResource = getSourceValueFromSourceResource(identity, uris, record);
         if (sourceValue.length() > 0) {
             createUri(record, uris, resource, identity, sourceValue);

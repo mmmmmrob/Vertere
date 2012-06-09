@@ -24,7 +24,6 @@ import org.apache.hadoop.util.ToolRunner;
  * @author RobSt
  */
 public class Vertere extends Configured implements Tool {
-
     @Override
     public int run(String[] args) throws Exception {
         JobConf conf = new JobConf(getConf(), Vertere.class);
@@ -60,6 +59,7 @@ public class Vertere extends Configured implements Tool {
     public static Property alternative_identity = ResourceFactory.createProperty("http://purl.org/ontology/vertere#alternative_identity");
     public static Property attribute = ResourceFactory.createProperty("http://purl.org/ontology/vertere#attribute");
     public static Property base_uri = ResourceFactory.createProperty("http://purl.org/ontology/vertere#base_uri");
+    public static Property column = ResourceFactory.createProperty("http://purl.org/ontology/vertere#column");
     public static Property container = ResourceFactory.createProperty("http://purl.org/ontology/vertere#container");
     public static Property datatype = ResourceFactory.createProperty("http://purl.org/ontology/vertere#datatype");
     public static Property expected_header = ResourceFactory.createProperty("http://purl.org/ontology/vertere#expected_header");
@@ -73,6 +73,7 @@ public class Vertere extends Configured implements Tool {
     public static Property lookup_value = ResourceFactory.createProperty("http://purl.org/ontology/vertere#lookup_value");
     public static Property nest_under = ResourceFactory.createProperty("http://purl.org/ontology/vertere#nest_under");
     public static Property object_from = ResourceFactory.createProperty("http://purl.org/ontology/vertere#object_from");
+    public static Property only_if = ResourceFactory.createProperty("http://purl.org/ontology/vertere#only_if");
     public static Property process = ResourceFactory.createProperty("http://purl.org/ontology/vertere#process");
     public static Property property = ResourceFactory.createProperty("http://purl.org/ontology/vertere#property");
     public static Property regex_match = ResourceFactory.createProperty("http://purl.org/ontology/vertere#regex_match");
@@ -103,5 +104,10 @@ public class Vertere extends Configured implements Tool {
         public static Resource title_case = ResourceFactory.createResource("http://purl.org/ontology/vertere#title_case");
         public static Resource trim_quotes = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim_quotes");
         public static Resource trim = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim");
+    }
+    
+    public static class Tests {
+        public static Resource distinct = ResourceFactory.createResource("http://purl.org/ontology/vertere#distinct");
+        public static Resource empty = ResourceFactory.createResource("http://purl.org/ontology/vertere#empty");
     }
 }

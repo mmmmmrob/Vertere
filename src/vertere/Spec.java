@@ -11,6 +11,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -92,7 +93,7 @@ public class Spec {
     public int[] getSourceColumns(Resource resource) {
         if (_model.contains(resource, Vertere.source_column)) {
             Statement sourceColumn = _model.getProperty(resource, Vertere.source_column);
-            return new int[] { sourceColumn.getInt() };
+            return new int[]{sourceColumn.getInt()};
         } else if (_model.contains(resource, Vertere.source_columns)) {
             Statement sourceColumns = _model.getProperty(resource, Vertere.source_columns);
             Resource listResource = sourceColumns.getResource();
@@ -288,6 +289,24 @@ public class Spec {
             return _model.getProperty(resource, Vertere.salt).getString();
         } else {
             return "";
+        }
+    }
+
+    NodeIterator getOnlyIfs(Resource resource) {
+        return _model.listObjectsOfProperty(resource, Vertere.only_if);
+    }
+
+    int[] getColumns(Resource test) {
+        if (_model.contains(test, Vertere.column)) {
+            NodeIterator listObjectsOfProperty = _model.listObjectsOfProperty(test, Vertere.column);
+            List<RDFNode> toList = listObjectsOfProperty.toList();
+            int[] columns = new int[toList.size()];
+            for (int i = 0; i < toList.size(); i++) {
+                columns[i] = toList.get(i).asLiteral().getInt();
+            }
+            return columns;
+        } else {
+            return new int[0];
         }
     }
 }
