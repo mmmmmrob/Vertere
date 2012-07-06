@@ -116,7 +116,7 @@
 ; :identity [
 	:source_column 17;
 	:base_uri "";
-	:process ( [ a :regex; :regex_match " "; :regex_output ""; ] );
+	:process ( [ a :regex; :regex_match "\\s"; :regex_output ""; ] );
 	 ]
 .
 

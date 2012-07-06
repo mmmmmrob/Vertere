@@ -37,7 +37,7 @@ public class GraphOutputFormat implements OutputFormat<Text, Text> {
 
         public NTriplesRecordWriter(FileSystem fs, JobConf jc, String name, Progressable progress) throws IOException {
             Path outputFolder = FileOutputFormat.getOutputPath(jc);
-            Path outputFile = new Path(outputFolder, name);
+            Path outputFile = new Path(outputFolder, name + ".nt");
             DataOutputStream out = fs.create(outputFile);
             _out = out;
             Writer writer = new OutputStreamWriter(_out);

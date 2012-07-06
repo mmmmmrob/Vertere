@@ -5,9 +5,16 @@
 package vertere;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import java.io.UnsupportedEncodingException;
 import java.math.RoundingMode;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.BaseNCodec;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -46,8 +53,6 @@ public class Processor {
     static String regex(String value, Spec spec, Resource resource) {
         String regexMatch = spec.getRegexMatch(resource);
         String regexOutput = spec.getRegexOutput(resource);
-
-//        throw new RuntimeException("\n\nRegex\n**-" + regexMatch + "-**\n**-" + regexOutput + "-**\n\n");
         return value.replaceAll(regexMatch, regexOutput);
     }
 
@@ -89,9 +94,40 @@ public class Processor {
     static String trim(String newValue) {
         return newValue.trim();
     }
-    
+
     static String sha512(String value, Spec spec, Resource resource) {
         String salt = spec.getSalt(resource);
         return DigestUtils.sha512Hex(salt + value);
+    }
+
+    static String sql_date(String newValue) {
+        String[] incomingFormats = new String[]{
+            "yyyy-MM-dd",
+            "yyyy-MM-dd HH:mm:ss"
+        };
+        try {
+            for (int i = 0; i < incomingFormats.length; i++) {
+                if (newValue.length() == incomingFormats[i].length()) {
+                    SimpleDateFormat sqlDateFormat = new SimpleDateFormat(incomingFormats[i]);
+                    Date date = sqlDateFormat.parse(newValue);
+                    SimpleDateFormat xsdDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    return xsdDateFormat.format(date);
+                }
+            }
+            return newValue;
+        } catch (ParseException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    static String urlify(String newValue) {
+        newValue = trim(newValue);
+        newValue = newValue.toLowerCase();
+        try {
+            newValue = URLEncoder.encode(newValue, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+        return newValue;
     }
 }

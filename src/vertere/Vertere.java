@@ -104,6 +104,8 @@ public class Vertere extends Configured implements Tool {
         public static Resource title_case = ResourceFactory.createResource("http://purl.org/ontology/vertere#title_case");
         public static Resource trim_quotes = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim_quotes");
         public static Resource trim = ResourceFactory.createResource("http://purl.org/ontology/vertere#trim");
+        public static Resource urlify = ResourceFactory.createResource("http://purl.org/ontology/vertere#urlify");
+        public static Resource sql_date = ResourceFactory.createResource("http://purl.org/ontology/vertere#sql_date");
     }
     
     public static class Tests {

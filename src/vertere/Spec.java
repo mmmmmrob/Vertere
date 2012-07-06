@@ -65,9 +65,10 @@ public class Spec {
     }
 
     public Resource getIdentity(Resource resource) {
-        Statement statement = _model.getProperty(resource, Vertere.identity);
-        Resource identity = statement.getResource();
-        return identity;
+        if (!_model.contains(resource, Vertere.identity)) {
+            throw new RuntimeException("Resource " + resource.getURI() + " does not contain an identity so cannot be created.");
+        }
+        return _model.getProperty(resource, Vertere.identity).getResource();
     }
 
     private HashMap<String, String> getPrefixes() {

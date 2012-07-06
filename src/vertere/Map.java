@@ -28,7 +28,7 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
 
     private Spec _spec;
     private CSVParser _parser;
-    private Logger _log = Logger.getLogger(Map.class.getName());
+    private static final Logger _log = Logger.getLogger(Map.class.getName());
 
     public Map() {
         _parser = new CSVParser();
@@ -94,26 +94,26 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             Resource typeOfTest = OWL.Thing;
             if (test.hasProperty(RDF.type)) {
                 typeOfTest = test.getProperty(RDF.type).getResource();
-                _log.log(Level.WARNING, "Test is a {0}", typeOfTest.getURI());
+//                _log.log(Level.WARNING, "Test is a {0}", typeOfTest.getURI());
             }
             if (typeOfTest.equals(Vertere.Tests.distinct)) {
-                _log.log(Level.WARNING, "Testing distinct for {0}", resourceLogName);
+//                _log.log(Level.WARNING, "Testing distinct for {0}", resourceLogName);
                 int[] columns = _spec.getColumns(test);
                 Set values = new HashSet();
                 for (int i = 0; i < columns.length; i++) {
                     values.add(record[columns[i] - 1]);
                 }
                 if (columns.length != values.size()) {
-                    _log.log(Level.WARNING, "Distinct test ruled out {0}", resourceLogName);
+//                    _log.log(Level.WARNING, "Distinct test ruled out {0}", resourceLogName);
                     return false;
                 }
             }
             if (typeOfTest.equals(Vertere.Tests.empty)) {
-                _log.log(Level.WARNING, "Testing empty for {0}", resourceLogName);
+//                _log.log(Level.WARNING, "Testing empty for {0}", resourceLogName);
                 int[] columns = _spec.getColumns(test);
                 for (int i = 0; i < columns.length; i++) {
                     if (record[columns[i] - 1].length() > 0) {
-                        _log.log(Level.SEVERE, "Empty ruled out for {0}", resourceLogName);
+//                        _log.log(Level.SEVERE, "Empty ruled out for {0}", resourceLogName);
                         return false;
                     }
                 }
@@ -137,7 +137,10 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             RDFDatatype datatype = _spec.getDatatype(attribute);
             String language = _spec.getLanguage(attribute);
             RDFNode lookupValue = _spec.lookup(attribute, sourceValue);
-            sourceValue = process(attribute, sourceValue);
+//            sourceValue = process(attribute, sourceValue);
+            if (sourceValue.length() == 0) {
+                continue;
+            }
             if (null != lookupValue) {
                 model.add(subject, property, lookupValue);
             } else if (null != language && language.length() != 0) {
@@ -263,7 +266,7 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         }
 
         String container = addTrailingSlashIfNeeded(_spec.getContainer(identity));
-        sourceValue = process(identity, sourceValue);
+//        sourceValue = process(identity, sourceValue);
 
         if (sourceValue.length() != 0) {
             Resource subject = ResourceFactory.createResource(baseUri + container + sourceValue);
@@ -326,6 +329,12 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             if (processStep.equals(Vertere.Processes.trim) || stepType.equals(Vertere.Processes.trim)) {
                 newValue = Processor.trim(newValue);
             }
+            if (processStep.equals(Vertere.Processes.sql_date) || stepType.equals(Vertere.Processes.sql_date)) {
+                newValue = Processor.sql_date(newValue);
+            }
+            if (processStep.equals(Vertere.Processes.urlify) || stepType.equals(Vertere.Processes.urlify)) {
+                newValue = Processor.urlify(newValue);
+            }
         }
         return newValue;
     }
@@ -347,11 +356,14 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         int[] sourceColumnNumbers = _spec.getSourceColumns(resource);
         String sourceColumnGlue = _spec.getGlue(resource);
         for (int i = 0; i < sourceColumnNumbers.length; i++) {
-            if (record[sourceColumnNumbers[i] - 1].length() > 0) {
-                if (i > 0) {
+            String columnValue = record[sourceColumnNumbers[i] - 1];
+            if (columnValue.length() > 0) {
+                columnValue = process(resource, columnValue);
+
+                if ((i > 0) && (columnValue.length() > 0)) {
                     sourceValue += sourceColumnGlue;
                 }
-                sourceValue += record[sourceColumnNumbers[i] - 1];
+                sourceValue += columnValue;
             }
         }
         return sourceValue;
